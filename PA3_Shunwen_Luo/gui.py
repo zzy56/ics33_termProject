@@ -51,11 +51,11 @@ class Gui(tk.Tk):
         l1.place(relx = 0.5, rely = 0.1, anchor = CENTER)
 
         l2 = app.getLabel(1)
-        l2.config(text = "----------Game 1----------")
+        l2.config(text = "-----Game 1-----")
         l2.place(relx = 0.5, rely = 0.15, anchor = CENTER)
 
         l3 = app.getLabel(2)
-        l3.config(text = "----------Round 1----------")
+        l3.config(text = "-----Round 1-----")
         l3.place(relx = 0.5, rely = 0.2, anchor = CENTER)
 
         l4 = app.getLabel(3)

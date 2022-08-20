@@ -20,7 +20,7 @@ import itertools
 import random
 #from pokerHands import pokerHands
 #from pokerHandsType import pokerHandsType
-from collections import defaultdict
+from collections import defaultdict,Counter
 
 
 
@@ -32,6 +32,7 @@ class cardTable:
         self.pokers = poker.creatPokerSet()
         self.communityCard = []
         self.winners = []
+        self.maxbet=0
 
     def set_up_table(self, num):
         # Setting up the game environment
@@ -66,48 +67,50 @@ class cardTable:
                 # print('Player', mplayer.getName(), ': rank', mplayer.__m_rank, 'bet $1')
                 mplayer.printPoker()
 
-        '''for mplayer in self.__m_currentPlayers.copy():
-            #mplayer.printPoker()
-            if mplayer.getplayerType() == playerType.human:
-                mplayer.printPoker()
-                al,mplayer.__m_rank = mplayer.discardPoker(self.communityCard)'''
-        # print('Player',mplayer.getName(),': rank', mplayer.__m_rank, 'bet $1')
 
         print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
         for mplayer in self.__m_currentPlayers.copy():
             if mplayer.getplayerType() == playerType.human:
                 self.playerOperation(mplayer)
                 #print('Player', mplayer.getName(), ': rank', mplayer.__m_rank, 'bet $1')
-        self.addCommunityCard(3)
-        self.printCommunityCard()
+
 
         for mplayer in self.__m_currentPlayers.copy():
             # mplayer.printPoker()
             if mplayer.getplayerType() != playerType.human:
-                print('Player', mplayer.getName(), ':bet $1')
-                mplayer.addbet(1)
+                #print('Player', mplayer.getName(), ':bet $1')
+                #mplayer.addbet(1)
+                bet1 = mplayer.smartBet1()
+                mplayer.addbet(bet1)
+                print('Player', mplayer.getName(), ':bet $', bet1)
                 #print('Player', mplayer.getName(), ': rank', mplayer.__m_rank, 'bet $1')
+                # print(mplayer.getbet())
+
+        self.addCommunityCard(3)
+        self.printCommunityCard()
+
+        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+        for mplayer in self.__m_currentPlayers.copy():
+            if mplayer.getplayerType() == playerType.human:
+                self.playerOperation(mplayer)
+
+        for mplayer in self.__m_currentPlayers.copy():
+            # mplayer.printPoker()
+            mplayer.__m_pokers, mplayer.__m_rank = mplayer.discardPoker(self.communityCard)
+            # print('Player', mplayer.getName(), ': bet $1')
+            if mplayer.getplayerType() != playerType.human:
+                bet2=mplayer.smartBet2(mplayer.__m_rank,self.maxbet)
+                mplayer.addbet(bet2)
+                if self.maxbet<bet2:
+                    self.maxbet=bet2
+                print('Player', mplayer.getName(), ': bet $',bet2)
                 # print(mplayer.getbet())
 
         print('----- Round 2 -----')  # round 2
 
-        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-        for mplayer in self.__m_currentPlayers.copy():
-            if mplayer.getplayerType() == playerType.human:
-                self.playerOperation(mplayer)
-
         self.addCommunityCard(2)
         self.printCommunityCard()
 
-        for mplayer in self.__m_currentPlayers.copy():
-            # mplayer.printPoker()
-            mplayer.__m_pokers, mplayer.__m_rank = mplayer.discardPoker(self.communityCard)
-            # print('Player', mplayer.getName(), ': bet $1')
-            if mplayer.getplayerType() != playerType.human:
-                print('Player', mplayer.getName(), ': bet $1')
-                mplayer.addbet(1)
-                # print(mplayer.getbet())
-
         print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
         for mplayer in self.__m_currentPlayers.copy():
             if mplayer.getplayerType() == playerType.human:
@@ -118,8 +121,16 @@ class cardTable:
             mplayer.__m_pokers, mplayer.__m_rank = mplayer.discardPoker(self.communityCard)
             # print('Player', mplayer.getName(), ': bet $1')
             if mplayer.getplayerType() != playerType.human:
-                print('Player', mplayer.getName(), ': bet $1')
-                mplayer.addbet(1)
+                if mplayer.__m_rank==9:
+                    self.__m_currentPlayers.remove(mplayer)
+                else:
+                    bet3 = mplayer.smartBet3(mplayer.__m_rank, self.maxbet,self.communityCard)
+                    mplayer.addbet(bet3)
+                    if self.maxbet < bet3:
+                        self.maxbet = bet3
+                    print('Player', mplayer.getName(), ': bet $', bet3)
+
+
 
         self.judgingTiebreakers()
 
@@ -199,9 +210,9 @@ class cardTable:
             print(mplayer.getName(), ': fold')
         elif type == operationType.Filling:
             print(mplayer.getName(), ': add bet')
-            a = input("How much you want to bet:")
+            a = input("How much you want to bet(please enter a number):")
             mplayer.addbet(int(a))
-            print(mplayer.getbet())
+            #print(mplayer.getbet())
         # elif type == operationType.Pass:
         #  print(mplayer.getName(),': 过牌')
         print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
@@ -341,16 +352,12 @@ def check(fi,dirc):
     #print(tlist)
     for i in range(len(tlist)):
         pdict[i] = jud(tlist[i])   #Get the rank
-    #print(pdict)
     rank = min(pdict.values())
     for key, value in pdict.items():
         if (value == min(pdict.values())):
             for i in tlist:
                 if i[0] == str(key):
                     wdict[key] = i[1:]
-    #print(rank)
-    #print(wdict)
-    #print('Winner:', end=" ")
 # If there is a tie, determine who is the winner
     if rank==0:
         return str(rank0(wdict))
@@ -683,6 +690,62 @@ class player:
             print(pok.getDecor(), pok.getPoint(), sep='', end=' ')
         print()
 
+    def smartBet1(self):
+        suit=set()
+        number=[]
+        for pok in self.__m_pokers:
+            suit.add(pok.getDecor())
+            number.append(int(pok.getPoint()))
+        real =[14 if i == 1 else i for i in number]
+        if len(suit)==1 or max(real)-min(real)==1 or max(real)-min(real)==0:
+            return 2
+        else:
+            return 1
+    def smartBet2(self,rank,mbet):
+        if mbet==3 and rank<2:
+            return 1
+        elif mbet==2 and rank <5:
+            return 1
+        else:
+            if rank<=9 and rank>5:
+                return 1
+            elif rank<=5 and rank>2:
+                return 2
+            elif rank<=2 and rank>=0 :
+                return 3
+    def smartBet3(self,rank,mbet,community):
+        pokerlist=self.__m_pokers + community
+        plist=poker.creatPokerSet()
+        elpoker = [x for x in plist if x not in pokerlist]
+        ranklist=[]
+        for i in itertools.combinations(elpoker, 2):
+            polist=list(i)+community
+            a=min(itertools.combinations(polist, 5), key=self.__m_pokerHands.jud)
+            ranklist.append(self.__m_pokerHands.jud(a))
+        rankdict=Counter(ranklist)
+        highrank=0
+        totalrank=0
+        for key,value in rankdict.items():
+            totalrank+=value
+            if int(key) > rank:
+                highrank+=value
+        if highrank/totalrank <=0.5:
+            if mbet == 3 and rank < 2:
+                return 1
+            elif mbet == 2 and rank < 5:
+                return 1
+            else:
+                if rank <= 9 and rank > 5:
+                    return 1
+                elif rank <= 5 and rank > 2:
+                    return 2
+                elif rank <= 2 and rank >= 0:
+                    return 3
+        else:
+            return 1
+
+
+
 class poker:
     #poker class to store the information about every card and create a deck of cards
     def __init__(self, decor: str, value: int):
@@ -762,236 +825,6 @@ class pokerHandsType(Enum):
     FOUR_OF_A_KIND = 8
     ROYAL_FLUSH = 9
 
-def rank0(dic):
-    #If rank is 0, judge the winner
-    winner=[]
-    for i in dic.keys():
-        winner.append(i)
-    return winner
-
-def rank1(dic):
-    # If rank is 1, judge the winner
-    winner=[]
-    cdict={}
-    for key, value in dic.items():
-        number = []
-        for i in value:
-            number.append(int(i[1:]))
-        cdict[key] = max(number)
-    for ckey, cvalue in cdict.items():
-        if cvalue == max(cdict.values()):
-            winner.append(ckey)
-    return winner
-def rank2(dic):
-    # If rank is 2, judge the winner
-    winner = []
-    cdict = {}
-    for key, value in dic.items():
-        number = []
-        for i in value:
-            number.append(int(i[1:]))
-        tdict = {}
-        for key in number:
-            tdict[key] = tdict.get(key, 0) + 1
-        for tkey, tvalue in tdict.items():
-            if tvalue == 1:
-                cdict[key] = tkey
-    if 1 in cdict.values():
-        for ckey, cvalue in cdict.items():
-            winner.append(ckey)
-    else:
-        for ckey, cvalue in cdict.items():
-            if cvalue == max(cdict.values()):
-                winner.append(ckey)
-    return winner
-def rank3(dic):
-    # If rank is 3, judge the winner
-    winner = []
-    cdict1 = {}
-    cdict2 = {}
-    for key, value in dic.items():
-        number = []
-        for i in value:
-            number.append(int(i[1:]))
-        real = [14 if i == 1 else i for i in number]
-        tdict = {}
-        for i in real:
-            tdict[i] = tdict.get(i, 0) + 1
-        for tkey, tvalue in tdict.items():
-            if tvalue == 3:
-                cdict1[key] = tkey
-            elif tvalue == 2:
-                cdict2[key] = tkey
-    if len(set(cdict1.values())) == 1:
-        for ckey, cvalue in cdict2.items():
-            if cvalue == max(cdict2.values()):
-                winner.append(ckey)
-    else:
-        for ckey, cvalue in cdict1.items():
-            if cvalue == max(cdict1.values()):
-                winner.append(ckey)
-    return winner
-def rank4(dic):
-    # If rank is 4, judge the winner
-    winner = []
-    cdict = {}
-    for key, value in dic.items():
-        number = []
-        for i in value:
-            number.append(int(i[1:]))
-        real = [14 if i == 1 else i for i in number]
-        cdict[key] = sorted(real, reverse=True)
-    for i in cdict.values():
-        a = list(cdict.values())[0]
-        if i > a:
-            a = i
-    for k, v in cdict.items():
-        if v == a:
-            winner.append(k)
-    return winner
-def rank5(dic):
-    # If rank is 5, judge the winner
-    winner = []
-    cdict = {}
-    for key, value in dic.items():
-        number = []
-        for i in value:
-            number.append(int(i[1:]))
-        real = [14 if i == 1 else i for i in number]
-        cdict[key] = real[0]
-    for i in cdict.values():
-        a = list(cdict.values())[0]
-        if i > a:
-            a = i
-    for k, v in cdict.items():
-        if v == a:
-            winner.append(k)
-    return winner
-def rank6(dic):
-    # If rank is 6, judge the winner
-    winner = []
-    cdict1 = {}
-    cdict2 = defaultdict(list)
-    for key, value in dic.items():
-        number = []
-        for i in value:
-            number.append(int(i[1:]))
-        real = [14 if i == 1 else i for i in number]
-        tdict = {}
-        for i in real:
-            tdict[i] = tdict.get(i, 0) + 1
-        for tkey, tvalue in tdict.items():
-            if tvalue == 3:
-                cdict1[key] = tkey
-            elif tvalue == 1:
-                cdict2[key].append(tkey)
-    if len(set(cdict1.values())) == 1:
-        for i in cdict2.values():
-            a = list(cdict2.values())[0]
-            if i > a:
-                a = i
-        for k, v in cdict2.items():
-            if v == a:
-                winner.append(k)
-    else:
-        for ckey, cvalue in cdict1.items():
-            if cvalue == max(cdict1.values()):
-                winner.append(ckey)
-    return winner
-def rank7(dic):
-    # If rank is 7, judge the winner
-    winner = []
-    cdict1 = defaultdict(list)
-    cdict2 = defaultdict(list)
-    for key, value in dic.items():
-        number = []
-        for i in value:
-            number.append(int(i[1:]))
-        real = [14 if i == 1 else i for i in number]
-        tdict = {}
-        for i in real:
-            tdict[i] = tdict.get(i, 0) + 1
-        for tkey, tvalue in tdict.items():
-            if tvalue == 2:
-                cdict1[key].append(tkey)
-            elif tvalue == 1:
-                cdict2[key].append(tkey)
-    b_set = set(map(tuple, cdict1.values()))
-    if len(b_set) == 1:
-        for i in cdict2.values():
-            a = list(cdict2.values())[0]
-            if i > a:
-                a = i
-        for k, v in cdict2.items():
-            if v == a:
-                winner.append(k)
-    else:
-        for i in cdict1.values():
-            a = list(cdict1.values())[0]
-            if i > a:
-                a = i
-        for k, v in cdict1.items():
-            if v == a:
-                winner.append(k)
-    return winner
-
-def rank8(dic):
-    # If rank is 8, judge the winner
-    winner = []
-    cdict1 = defaultdict(list)
-    cdict2 = defaultdict(list)
-    for key, value in dic.items():
-        number = []
-        for i in value:
-            number.append(int(i[1:]))
-        real = [14 if i == 1 else i for i in number]
-        tdict = {}
-        for i in real:
-            tdict[i] = tdict.get(i, 0) + 1
-        for tkey, tvalue in tdict.items():
-            if tvalue == 2:
-                cdict1[key].append(tkey)
-            elif tvalue == 1:
-                cdict2[key].append(tkey)
-    b_set = set(map(tuple, cdict1.values()))
-    b = map(list, b_set)
-    if len(b_set) == 1:
-        for i in cdict2.values():
-            a = list(cdict2.values())[0]
-            if i > a:
-                a = i
-        for k, v in cdict2.items():
-            if v == a:
-                winner.append(k)
-    else:
-        for i in cdict1.values():
-            a = list(cdict1.values())[0]
-            if i > a:
-                a = i
-        for k, v in cdict1.items():
-            if v == a:
-                winner.append(k)
-    return winner
-def rank9(dic):
-    # If rank is 9, judge the winner
-    winner = []
-    cdict = {}
-    for key, value in dic.items():
-        number = []
-        for i in value:
-            number.append(int(i[1:]))
-        real = [14 if i == 1 else i for i in number]
-        cdict[key] = real[0]
-    for i in cdict.values():
-        a = list(cdict.values())[0]
-        if i > a:
-            a = i
-    for k, v in cdict.items():
-        if v == a:
-            winner.append(k)
-    return winner
-
-
 if __name__ == '__main__':
     # def functionName(level):
     #     #Raise an non-number input error
@@ -1016,7 +849,8 @@ if __name__ == '__main__':
     #print(args.f)
     if args.u:
         n_player = args.p
-        try:
+        cardTable().set_up_table(n_player)
+    ''' try:
             #print(n_player)
             functionName(n_player)
             print(n_player)
@@ -1027,4 +861,4 @@ if __name__ == '__main__':
     elif args.f:
         file_fold = args.i
         a=main(file_fold)
-        print('Pass test number:',a)
+        print('Pass test number:',a)'''

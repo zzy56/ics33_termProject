@@ -22,7 +22,10 @@ import random
 #from pokerHandsType import pokerHandsType
 from collections import defaultdict,Counter
 
-
+import tkinter as tk
+from tkinter import *
+from tkinter import messagebox
+from tkinter import ttk
 
 class cardTable:
     def __init__(self):
@@ -50,9 +53,14 @@ class cardTable:
                 if mplayer.getplayerType() == playerType.human:
                     if mplayer.getMoney == 0:
                         return
-            flag = int(input("1.Continue(Please enter 1)\n2.Exit (Please enter 2)\n:"))
+            app.displayText(0, "1.Continue(Please enter 1)\n2.Exit (Please enter 2)\n:")
+            app.button.wait_variable(app.confirmed)
+            flag = int(app.entry.get())
+            #flag = int(input("1.Continue(Please enter 1)\n2.Exit (Please enter 2)\n:"))
             if flag == 2:
                 return
+            for i in range(5):
+                app.displayText(i, "\n")
 
     def gameStart(self):
         # main game function
@@ -74,7 +82,7 @@ class cardTable:
                 self.playerOperation(mplayer)
                 #print('Player', mplayer.getName(), ': rank', mplayer.__m_rank, 'bet $1')
 
-
+        str1 = ""
         for mplayer in self.__m_currentPlayers.copy():
             # mplayer.printPoker()
             if mplayer.getplayerType() != playerType.human:
@@ -82,9 +90,11 @@ class cardTable:
                 #mplayer.addbet(1)
                 bet1 = mplayer.smartBet1()
                 mplayer.addbet(bet1)
-                print('Player', mplayer.getName(), ':bet $', bet1)
+                str1 += 'Player' + mplayer.getName() + ':bet $' + str(bet1) + "\n"
+                #print('Player', mplayer.getName(), ':bet $', bet1)
                 #print('Player', mplayer.getName(), ': rank', mplayer.__m_rank, 'bet $1')
                 # print(mplayer.getbet())
+        app.displayText(1, str1)
 
         self.addCommunityCard(3)
         self.printCommunityCard()
@@ -94,6 +104,7 @@ class cardTable:
             if mplayer.getplayerType() == playerType.human:
                 self.playerOperation(mplayer)
 
+        str2 = ""
         for mplayer in self.__m_currentPlayers.copy():
             # mplayer.printPoker()
             mplayer.__m_pokers, mplayer.__m_rank = mplayer.discardPoker(self.communityCard)
@@ -103,8 +114,10 @@ class cardTable:
                 mplayer.addbet(bet2)
                 if self.maxbet<bet2:
                     self.maxbet=bet2
-                print('Player', mplayer.getName(), ': bet $',bet2)
+                str2 += 'Player' + mplayer.getName() + ': bet $' + str(bet2) + "\n"
+                #print('Player', mplayer.getName(), ': bet $',bet2)
                 # print(mplayer.getbet())
+        app.displayText(1, str2)
 
         print('----- Round 2 -----')  # round 2
 
@@ -116,6 +129,7 @@ class cardTable:
             if mplayer.getplayerType() == playerType.human:
                 self.playerOperation(mplayer)
 
+        str3 = ""
         for mplayer in self.__m_currentPlayers.copy():
             # mplayer.printPoker()
             mplayer.__m_pokers, mplayer.__m_rank = mplayer.discardPoker(self.communityCard)
@@ -128,8 +142,9 @@ class cardTable:
                     mplayer.addbet(bet3)
                     if self.maxbet < bet3:
                         self.maxbet = bet3
-                    print('Player', mplayer.getName(), ': bet $', bet3)
-
+                    str3 += 'Player' + mplayer.getName() + ': bet $' + str(bet3) + "\n"
+                    #print('Player', mplayer.getName(), ': bet $', bet3)
+        app.displayText(1, str3)
 
 
         self.judgingTiebreakers()
@@ -149,8 +164,12 @@ class cardTable:
             else:
                 mplayer.loseMoney(mplayer.getbet())
 
-        print("——————Results————————")
-        print('Winner: Player', ','.join(winlist))
+        string = ""
+        string += "——————Results————————\n"
+        string += 'Winner: Player' + ','.join(winlist) + "\n"
+        app.displayText(2, string)
+        # print("——————Results————————")
+        # print('Winner: Player', ','.join(winlist))
         for mplayer in self.__m_allPlayers.copy():
             print("Player", mplayer.getName(), ":$", mplayer.getMoney())
             if mplayer.getMoney() <= 0:  # if someone's lose all money, remove from game
@@ -197,10 +216,16 @@ class cardTable:
 
     def printCommunityCard(self):
         # print community card
-        print("Community card :")
+        string = ""
+        string += "Community card :"
         for pok in self.communityCard:
-            print(pok.getDecor(), pok.getPoint(), sep='', end=' ')
-        print()
+            string += pok.getDecor() + pok.getPoint() + ' '
+        string += "\n"
+        app.displayText(3, string)
+        # print("Community card :")
+        # for pok in self.communityCard:
+        #     print(pok.getDecor(), pok.getPoint(), sep='', end=' ')
+        # print()
 
     def playerOperation(self, mplayer):
 
@@ -210,7 +235,10 @@ class cardTable:
             print(mplayer.getName(), ': fold')
         elif type == operationType.Filling:
             print(mplayer.getName(), ': add bet')
-            a = input("How much you want to bet(please enter a number):")
+            app.displayText(0, "How much you want to bet \n (please enter a number):")
+            app.button.wait_variable(app.confirmed)
+            a = app.entry.get()
+            #a = input("How much you want to bet(please enter a number):")
             mplayer.addbet(int(a))
             #print(mplayer.getbet())
         # elif type == operationType.Pass:
@@ -671,7 +699,10 @@ class player:
         elif playerType.human == self.__m_playerType:
             if self.__m_money > 0:
                 while True:
-                    num = int(input("Please choose your option:\n1.fold(enter 1)\n2.bet (enter 2)\n"))
+                    app.displayText(0, "Please choose your option:\n1.fold(enter 1)\n2.bet (enter 2)\n")
+                    app.button.wait_variable(app.confirmed)
+                    num = int(app.entry.get())
+                    #num = int(input("Please choose your option:\n1.fold(enter 1)\n2.bet (enter 2)\n"))
                     if num == 1 or num ==2 :
                         return operationType(num)
                     else:
@@ -685,10 +716,16 @@ class player:
         return a, rank
 
     def printPoker(self):
-        print('Player', self.__m_name, end=' : ')
+        string = ""
+        string += 'Player' + self.__m_name + ' : '
         for pok in self.__m_pokers:
-            print(pok.getDecor(), pok.getPoint(), sep='', end=' ')
-        print()
+            string += pok.getDecor() + pok.getPoint() + ' '
+        string += "\n"
+        app.displayText(4, string)
+        # print('Player', self.__m_name, end=' : ')
+        # for pok in self.__m_pokers:
+        #     print(pok.getDecor(), pok.getPoint(), sep='', end=' ')
+        # print()
 
     def smartBet1(self):
         suit=set()
@@ -825,6 +862,48 @@ class pokerHandsType(Enum):
     FOUR_OF_A_KIND = 8
     ROYAL_FLUSH = 9
 
+class Gui(tk.Tk):
+
+    def __init__(self, width, height):
+        super().__init__()
+        self.title('ICS33 Term Project')
+        self.geometry(str(width)+"x"+str(height))
+        self.entry = Entry(self, width = 20)
+        self.entry.grid(row = 5, column = 0, sticky = W, pady = 2)
+
+        self.func = None
+        self.n_players = None
+
+        self.confirmed = tk.IntVar()
+        self.button = tk.Button(self, text="Confirm", command=lambda: self.confirmed.set(-self.confirmed.get()))
+        self.button.grid(row = 6, column = 0, sticky = W, pady = 2)
+
+        self.startButton = tk.Button(self, text="Start", command=self.start)
+        self.startButton.grid(row = 7, column = 0, sticky = W, pady = 2)
+
+        self.labels = []
+        for i in range(5):
+            newLabel = Label(self, text="\n")
+            newLabel.grid(row = i, column = 0, sticky = W, pady = 2)
+            self.labels.append(newLabel)
+    
+    def mainFunction(self, func, n_players):
+        func(n_players)
+        return
+
+    def start(self):
+        print("starting")
+        self.startButton.destroy()
+        self.mainFunction(self.func, self.n_players)
+        self.destroy()
+        return
+
+    def displayText(self, index, text):
+        self.labels[index].config(text=str(text))
+        return
+
+
+
 if __name__ == '__main__':
     # def functionName(level):
     #     #Raise an non-number input error
@@ -849,7 +928,12 @@ if __name__ == '__main__':
     #print(args.f)
     if args.u:
         n_player = args.p
-        cardTable().set_up_table(n_player)
+        app = Gui(300, 350)
+        cT = cardTable()
+        app.func = cT.set_up_table
+        app.n_players = n_player
+        app.mainloop()
+        #cardTable().set_up_table(n_player)
     ''' try:
             #print(n_player)
             functionName(n_player)

@@ -167,15 +167,17 @@ class cardTable:
         string = ""
         string += "——————Results————————\n"
         string += 'Winner: Player' + ','.join(winlist) + "\n"
-        app.displayText(2, string)
+        
         # print("——————Results————————")
         # print('Winner: Player', ','.join(winlist))
         for mplayer in self.__m_allPlayers.copy():
+            string += "Player" + mplayer.getName() + ":$" + mplayer.getMoney()
             print("Player", mplayer.getName(), ":$", mplayer.getMoney())
             if mplayer.getMoney() <= 0:  # if someone's lose all money, remove from game
                 print("Player", mplayer.getName(), "run out of money and is removed from the game.")
                 self.__m_allPlayers.remove(mplayer)
         print("——————End of Game———————— ")
+        app.displayText(2, string)
 
     def judgingTiebreakers(self):
         best_rank = min(self.__m_currentPlayers.copy(), key=lambda poker: poker.__m_rank)

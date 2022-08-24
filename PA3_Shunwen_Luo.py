@@ -171,7 +171,7 @@ class cardTable:
         # print("——————Results————————")
         # print('Winner: Player', ','.join(winlist))
         for mplayer in self.__m_allPlayers.copy():
-            string += "Player" + mplayer.getName() + ":$" + mplayer.getMoney()
+            string += "Player" + mplayer.getName() + ":$" + str(mplayer.getMoney()) + "\n"
             print("Player", mplayer.getName(), ":$", mplayer.getMoney())
             if mplayer.getMoney() <= 0:  # if someone's lose all money, remove from game
                 print("Player", mplayer.getName(), "run out of money and is removed from the game.")

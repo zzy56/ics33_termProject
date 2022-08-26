@@ -42,6 +42,7 @@ class cardTable:
             app.displayText(0, "1.Continue(Please enter 1)\n2.Exit (Please enter 2)\n:")
             app.button.wait_variable(app.confirmed)
             flag = int(app.entry.get())
+            app.entry.delete(0, END)
             #flag = int(input("1.Continue(Please enter 1)\n2.Exit (Please enter 2)\n:"))
             if flag == 2:
                 return
@@ -226,6 +227,7 @@ class cardTable:
             app.displayText(0, "How much you want to bet \n (please enter a number):")
             app.button.wait_variable(app.confirmed)
             a = app.entry.get()
+            app.entry.delete(0, END)
             #a = input("How much you want to bet(please enter a number):")
             mplayer.addbet(int(a))
             #print(mplayer.getbet())
@@ -690,6 +692,7 @@ class player:
                     app.displayText(0, "Please choose your option:\n1.fold(enter 1)\n2.bet (enter 2)\n")
                     app.button.wait_variable(app.confirmed)
                     num = int(app.entry.get())
+                    app.entry.delete(0, END)
                     #num = int(input("Please choose your option:\n1.fold(enter 1)\n2.bet (enter 2)\n"))
                     if num == 1 or num ==2 :
                         return operationType(num)

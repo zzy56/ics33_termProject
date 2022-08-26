@@ -1,8 +1,6 @@
 import argparse
 from enum import Enum
 import argparse
-import csv
-import os
 import itertools
 import random
 from collections import defaultdict,Counter
@@ -37,8 +35,15 @@ class cardTable:
                     if mplayer.getMoney == 0:
                         return
             app.displayText(0, "1.Continue(Please enter 1)\n2.Exit (Please enter 2)\n:")
-            app.button.wait_variable(app.confirmed)
-            flag = int(app.entry.get())
+            while(app.entry.get().isnumeric() == False):
+                app.button.wait_variable(app.confirmed)
+                try:
+                    int(app.entry.get())
+                    if(int(app.entry.get()) != 1 or int(app.entry.get()) != 2):
+                        continue
+                    flag = int(app.entry.get())
+                except:
+                    continue
             app.entry.delete(0, END)
 
             if flag == 2:
@@ -198,10 +203,17 @@ class cardTable:
             self.__m_currentPlayers.remove(mplayer)
         elif type == operationType.Filling:
             app.displayText(0, "How much you want to bet \n (please enter a number):")
-            app.button.wait_variable(app.confirmed)
+            while(app.entry.get().isnumeric() == False):
+                app.button.wait_variable(app.confirmed)
+                try:
+                    int(app.entry.get())
+                    if(int(app.entry.get()) != 1 or int(app.entry.get()) != 2):
+                        continue
+                    a = int(app.entry.get())
+                except:
+                    continue
             a = app.entry.get()
             app.entry.delete(0, END)
-
             mplayer.addbet(int(a))
 
 
@@ -544,7 +556,15 @@ class player:
             if self.__m_money > 0:
                 while True:
                     app.displayText(0, "Please choose your option:\n1.fold(enter 1)\n2.bet (enter 2)\n")
-                    app.button.wait_variable(app.confirmed)
+                    while(app.entry.get().isnumeric() == False):
+                        app.button.wait_variable(app.confirmed)
+                        try:
+                            int(app.entry.get())
+                            if(int(app.entry.get()) != 1 or int(app.entry.get()) != 2):
+                                continue
+                            num = int(app.entry.get())
+                        except:
+                            continue
                     num = int(app.entry.get())
                     app.entry.delete(0, END)
                     #num = int(input("Please choose your option:\n1.fold(enter 1)\n2.bet (enter 2)\n"))
@@ -782,5 +802,3 @@ if __name__ == '__main__':
     app.func = cT.set_up_table
     app.protocol("WM_DELETE_WINDOW", app.onClosing)
     app.mainloop()
-
-

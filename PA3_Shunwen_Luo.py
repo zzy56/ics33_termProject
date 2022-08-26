@@ -1,16 +1,6 @@
-#from cardTable import cardTable
 import argparse
-#import dealer
-#import file_mode
-#import tie_breaker
-#from poker import poker
-#from player import player
-#from player import operationType
-#from player import playerType
-#from dealer import dealer
 from enum import Enum
 import random
-#from pokerHands import pokerHands
 import argparse
 import csv
 from collections import defaultdict
@@ -18,14 +8,10 @@ import os
 from enum import Enum
 import itertools
 import random
-#from pokerHands import pokerHands
-#from pokerHandsType import pokerHandsType
 from collections import defaultdict,Counter
 
 import tkinter as tk
 from tkinter import *
-from tkinter import messagebox
-from tkinter import ttk
 
 class cardTable:
     def __init__(self):
@@ -912,10 +898,10 @@ if __name__ == '__main__':
     #     if level < 0:
     #         raise Exception('Please input a number more than 0.')
     parser = argparse.ArgumentParser()
-    parser.add_argument('-u', action="store_true",
-                        help='Stop the game')
-    parser.add_argument('-f', action="store_true",
-                        help='Stop the game')
+    # parser.add_argument('-u', action="store_true",
+    #                     help='Stop the game')
+    # parser.add_argument('-f', action="store_true",
+    #                     help='Stop the game')
     parser.add_argument('-p', type=int, default=0,
                         help='Bot players ')
     parser.add_argument('-i', type=str, default=0,
@@ -928,14 +914,13 @@ if __name__ == '__main__':
         if level <= 0:
             raise Exception("Invalid Input")
     #print(args.f)
-    if args.u:
-        n_player = args.p
-        app = Gui(300, 350)
-        cT = cardTable()
-        app.func = cT.set_up_table
-        app.n_players = n_player
-        app.mainloop()
-        #cardTable().set_up_table(n_player)
+    n_player = args.p
+    app = Gui(300, 350)
+    cT = cardTable()
+    app.func = cT.set_up_table
+    app.n_players = n_player
+    app.mainloop()
+    #cardTable().set_up_table(n_player)
     ''' try:
             #print(n_player)
             functionName(n_player)

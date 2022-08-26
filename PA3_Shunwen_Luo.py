@@ -51,10 +51,8 @@ class cardTable:
 
     def gameStart(self):
         # main game function
-        print('-----Game Start-----')
         self.deal()
 
-        print('----- Round 1 -----')  # round 1
 
         for mplayer in self.__m_currentPlayers.copy():
             # mplayer.printPoker()
@@ -63,7 +61,6 @@ class cardTable:
                 mplayer.printPoker()
 
 
-        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
         for mplayer in self.__m_currentPlayers.copy():
             if mplayer.getplayerType() == playerType.human:
                 self.playerOperation(mplayer)
@@ -86,7 +83,6 @@ class cardTable:
         self.addCommunityCard(3)
         self.printCommunityCard()
 
-        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
         for mplayer in self.__m_currentPlayers.copy():
             if mplayer.getplayerType() == playerType.human:
                 self.playerOperation(mplayer)
@@ -106,21 +102,17 @@ class cardTable:
                 # print(mplayer.getbet())
         app.displayText(1, str2)
 
-        print('----- Round 2 -----')  # round 2
 
         self.addCommunityCard(2)
         self.printCommunityCard()
 
-        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
         for mplayer in self.__m_currentPlayers.copy():
             if mplayer.getplayerType() == playerType.human:
                 self.playerOperation(mplayer)
 
         str3 = ""
         for mplayer in self.__m_currentPlayers.copy():
-            # mplayer.printPoker()
             mplayer.__m_pokers, mplayer.__m_rank = mplayer.discardPoker(self.communityCard)
-            # print('Player', mplayer.getName(), ': bet $1')
             if mplayer.getplayerType() != playerType.human:
                 if mplayer.__m_rank==9:
                     self.__m_currentPlayers.remove(mplayer)
@@ -130,7 +122,6 @@ class cardTable:
                     if self.maxbet < bet3:
                         self.maxbet = bet3
                     str3 += 'Player' + mplayer.getName() + ': bet $' + str(bet3) + "\n"
-                    #print('Player', mplayer.getName(), ': bet $', bet3)
         app.displayText(1, str3)
 
 
@@ -140,7 +131,6 @@ class cardTable:
         totalbet = 0
         for mplayer in self.__m_allPlayers.copy():  # calculate for money
             totalbet += int(mplayer.getbet())
-        # print(totalbet)
 
         for mplayer in self.__m_currentPlayers.copy():  # calculate for money
             if len(winlist) == len(self.__m_currentPlayers):
@@ -155,15 +145,11 @@ class cardTable:
         string += "——————Results————————\n"
         string += 'Winner: Player' + ','.join(winlist) + "\n"
         
-        # print("——————Results————————")
-        # print('Winner: Player', ','.join(winlist))
         for mplayer in self.__m_allPlayers.copy():
             string += "Player" + mplayer.getName() + ":$" + str(mplayer.getMoney()) + "\n"
-            print("Player", mplayer.getName(), ":$", mplayer.getMoney())
             if mplayer.getMoney() <= 0:  # if someone's lose all money, remove from game
                 print("Player", mplayer.getName(), "run out of money and is removed from the game.")
                 self.__m_allPlayers.remove(mplayer)
-        print("——————End of Game———————— ")
         app.displayText(2, string)
 
     def judgingTiebreakers(self):
@@ -211,19 +197,14 @@ class cardTable:
             string += pok.getDecor() + pok.getPoint() + ' '
         string += "\n"
         app.displayText(3, string)
-        # print("Community card :")
-        # for pok in self.communityCard:
-        #     print(pok.getDecor(), pok.getPoint(), sep='', end=' ')
-        # print()
+
 
     def playerOperation(self, mplayer):
 
         type = mplayer.operation()
         if type == operationType.Discard:
             self.__m_currentPlayers.remove(mplayer)
-            print(mplayer.getName(), ': fold')
         elif type == operationType.Filling:
-            print(mplayer.getName(), ': add bet')
             app.displayText(0, "How much you want to bet \n (please enter a number):")
             app.button.wait_variable(app.confirmed)
             a = app.entry.get()
@@ -233,7 +214,6 @@ class cardTable:
             #print(mplayer.getbet())
         # elif type == operationType.Pass:
         #  print(mplayer.getName(),': 过牌')
-        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 
     def addCommunityCard(self, count: int):
         # add community card
@@ -253,10 +233,6 @@ class cardTable:
         # distribute cards
         self.m_dealer.deal(self.pokers, self.__m_currentPlayers)
 
-    def printPlayerInformation(self):
-        print("--- Player information ---")
-        for mplayer in self.__m_allPlayers:
-            print('Name: ', mplayer.getName(), 'Money: ', mplayer.getMoney(), sep='', end=' ')
 
     def shufflecard(self):
         # shuffle card after a game
@@ -330,73 +306,6 @@ def jud(li):
     else:
         return 9
 
-def main(dir):
-    '''parser = argparse.ArgumentParser()
-    parser.add_argument('path', type=str,
-                    help='A required path to the test file')
-    parser.add_argument('--result', type=str, required=False,
-                    help='The IDs for the expected winner(s), separated by comma')
-    args = parser.parse_args()'''
-    filelist = os.listdir(dir)
-    filelist.sort(key=lambda x:int(x[:-4]))
-    f = open("test_results.txt")
-    counter=0
-    check_list=[]
-    result_list=[]
-    for file in filelist:
-        #print(check(file,dir)[1])
-        check_list.append(int(check(file,dir)[1]))
-    for line in f:
-        b=line.split(',')
-        b[1]=b[1].strip('\n')
-        result_list.append(int(b[1]))
-    #print(check_list)
-    #print(result_list)
-    for i in range(len(check_list)):
-        #print(check_list[i])
-        #print(result_list[i])
-        if check_list[i] == result_list[i]:
-            counter+=1
-    return counter
-
-
-
-
-
-def check(fi,dirc):
-    tlist=read_file(fi,dirc) #Read the file
-    pdict = {}
-    wdict = {}
-    #print(tlist)
-    for i in range(len(tlist)):
-        pdict[i] = jud(tlist[i])   #Get the rank
-    rank = min(pdict.values())
-    for key, value in pdict.items():
-        if (value == min(pdict.values())):
-            for i in tlist:
-                if i[0] == str(key):
-                    wdict[key] = i[1:]
-# If there is a tie, determine who is the winner
-    if rank==0:
-        return str(rank0(wdict))
-    elif rank==1:
-        return str(rank1(wdict))
-    elif rank==2:
-        return str(rank2(wdict))
-    elif rank==3:
-        return str(rank3(wdict))
-    elif rank==4:
-        return str(rank4(wdict))
-    elif rank==5:
-        return str(rank5(wdict))
-    elif rank==6:
-        return str(rank6(wdict))
-    elif rank==7:
-        return str(rank7(wdict))
-    elif rank==8:
-        return str(rank8(wdict))
-    elif rank==9:
-        return str(rank9(wdict))
 
 # Followings are functions to determine the tie-breaker.
 def rank0(dic):
@@ -622,7 +531,6 @@ def rank9(dic):
         cdict[key] = real
     a=[]
     for i in cdict.values():
-        #print(i)
         a = list(cdict.values())[0]
         a.sort(reverse=True)
         i.sort(reverse=True)
@@ -713,10 +621,6 @@ class player:
             string += pok.getDecor() + pok.getPoint() + ' '
         string += "\n"
         app.displayText(4, string)
-        # print('Player', self.__m_name, end=' : ')
-        # for pok in self.__m_pokers:
-        #     print(pok.getDecor(), pok.getPoint(), sep='', end=' ')
-        # print()
 
     def smartBet1(self):
         suit=set()
@@ -891,14 +795,6 @@ class Gui(tk.Tk):
         self.destroy()
         return
 
-    # def start(self):
-    #     print("starting")
-    #     self.startButton.destroy()
-    #     n_players = self.entry.get()
-    #     self.mainFunction(self.func, self.n_players)
-    #     self.destroy()
-    #     return
-
     def displayText(self, index, text):
         self.labels[index].config(text=str(text))
         return
@@ -914,7 +810,6 @@ if __name__ == '__main__':
         # Raise an non-number input error
         if level <= 0:
             raise Exception("Invalid Input")
-    #print(args.f)
     app = Gui(400, 400)
     cT = cardTable()
     app.func = cT.set_up_table

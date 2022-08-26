@@ -735,7 +735,7 @@ class Gui(tk.Tk):
         self.func = None
 
         self.confirmed = tk.IntVar()
-        self.button = tk.Button(self, text="Confirm", command=lambda: self.confirmed.set(-self.confirmed.get()))
+        self.button = tk.Button(self, text="Confirm", command=self.setConfirm)
         self.button.grid(row = 6, column = 0, sticky = W, pady = 2)
 
         self.startButton = tk.Button(self, text="Start", command=self.start)
@@ -752,6 +752,9 @@ class Gui(tk.Tk):
     def mainFunction(self, func, n_players):
         func(n_players)
         return
+
+    def setConfirm(self, event=None):
+        self.confirmed.set(-self.confirmed.get())
 
     def start(self):
         n_players = self.entry.get()

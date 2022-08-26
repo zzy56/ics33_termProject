@@ -863,7 +863,6 @@ class Gui(tk.Tk):
         self.entry.grid(row = 5, column = 0, sticky = W, pady = 2)
 
         self.func = None
-        self.n_players = None
 
         self.confirmed = tk.IntVar()
         self.button = tk.Button(self, text="Confirm", command=lambda: self.confirmed.set(-self.confirmed.get()))
@@ -877,17 +876,28 @@ class Gui(tk.Tk):
             newLabel = Label(self, text="\n")
             newLabel.grid(row = i, column = 0, sticky = W, pady = 2)
             self.labels.append(newLabel)
+        
+        self.displayText(0, "Please enter the number of bot players \n you wish to have in this game (maxium 6 players), \n then press start")        
     
     def mainFunction(self, func, n_players):
         func(n_players)
         return
 
     def start(self):
-        print("starting")
         self.startButton.destroy()
-        self.mainFunction(self.func, self.n_players)
+        n_players = self.entry.get()
+        self.entry.delete(0, END)
+        self.mainFunction(self.func, int(n_players))
         self.destroy()
         return
+
+    # def start(self):
+    #     print("starting")
+    #     self.startButton.destroy()
+    #     n_players = self.entry.get()
+    #     self.mainFunction(self.func, self.n_players)
+    #     self.destroy()
+    #     return
 
     def displayText(self, index, text):
         self.labels[index].config(text=str(text))
@@ -896,19 +906,7 @@ class Gui(tk.Tk):
 
 
 if __name__ == '__main__':
-    # def functionName(level):
-    #     #Raise an non-number input error
-    #     if level < 0:
-    #         raise Exception('Please input a number more than 0.')
     parser = argparse.ArgumentParser()
-    # parser.add_argument('-u', action="store_true",
-    #                     help='Stop the game')
-    # parser.add_argument('-f', action="store_true",
-    #                     help='Stop the game')
-    parser.add_argument('-p', type=int, default=0,
-                        help='Bot players ')
-    parser.add_argument('-i', type=str, default=0,
-                        help='Bot players ')
 
     args = parser.parse_args()
 
@@ -917,11 +915,9 @@ if __name__ == '__main__':
         if level <= 0:
             raise Exception("Invalid Input")
     #print(args.f)
-    n_player = args.p
-    app = Gui(300, 350)
+    app = Gui(400, 400)
     cT = cardTable()
     app.func = cT.set_up_table
-    app.n_players = n_player
     app.mainloop()
     #cardTable().set_up_table(n_player)
     ''' try:

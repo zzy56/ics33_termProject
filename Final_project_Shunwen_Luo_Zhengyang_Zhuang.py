@@ -207,7 +207,7 @@ class cardTable:
                 app.button.wait_variable(app.confirmed)
                 try:
                     int(app.entry.get())
-                    if(int(app.entry.get()) != 1 or int(app.entry.get()) != 2):
+                    if(int(app.entry.get()) <= 0):
                         continue
                     a = int(app.entry.get())
                 except:

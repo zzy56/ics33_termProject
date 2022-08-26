@@ -788,9 +788,26 @@ class Gui(tk.Tk):
         return
 
     def start(self):
-        self.startButton.destroy()
         n_players = self.entry.get()
+        try:
+            int(n_players)
+            if(int(n_players) > 6):
+                self.displayText(1, "too many players (max 6)")
+                return
+            if(int(n_players) < 0):
+                self.displayText(1, "there can't be negative number of players (max 6)")
+                return
+            if(int(n_players) == 0):
+                self.displayText(1, "you can't play with yourself")
+                return
+        except:
+            self.displayText(1, "invaild input")
+            self.entry.delete(0, END)
+            return
+
+        self.startButton.destroy()
         self.entry.delete(0, END)
+        self.displayText(1, "")
         self.mainFunction(self.func, int(n_players))
         self.destroy()
         return
@@ -798,6 +815,10 @@ class Gui(tk.Tk):
     def displayText(self, index, text):
         self.labels[index].config(text=str(text))
         return
+
+    def onClosing(self):
+        self.confirmed.set(1)
+        self.destroy()
 
 
 
@@ -813,6 +834,7 @@ if __name__ == '__main__':
     app = Gui(400, 400)
     cT = cardTable()
     app.func = cT.set_up_table
+    app.protocol("WM_DELETE_WINDOW", app.onClosing)
     app.mainloop()
     #cardTable().set_up_table(n_player)
     ''' try:
